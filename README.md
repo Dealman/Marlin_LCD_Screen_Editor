@@ -2,7 +2,7 @@
 I want to make it very clear that this is not an official Marlin Firmware software. It is not in any way, shape or form supported nor endorsed by Marlin Firmware.
 
 # Marlin LCD Screen Editor
-This is a software to aid in the designing of custom bootscreens and perhaps in the future also statusscreens for [Marlin](https://github.com/MarlinFirmware/Marlin). It is a rather early proof of concept, so a bunch of features are still missing or not yet implemented.
+This is a software to aid in the designing of custom bootscreens and perhaps in the future also statusscreens for [Marlin](https://github.com/MarlinFirmware/Marlin). It is a rather early proof of concept, so a bunch of features are still missing or not yet fully implemented.
 
 # Current Features
 Currently only supports the default Ender 3 LCD which is 88x58 pixels. It should be rather trivial to implement support for other screens, though.
