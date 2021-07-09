@@ -56,26 +56,27 @@ namespace Marlin_LCD_Screen_Editor.Controls
             PixelGridChanged();
         }
 
-        Stopwatch sw = new Stopwatch();
+        private int GetPixelUnderCursor(Point mousePos)
+        {
+            // TODO: These values shouldn't be hardcoded, fix ASAP!
+            var xPos = Math.Floor(mousePos.X / 9);
+            var yPos = Math.Floor(mousePos.Y / 9);
+            int xPosInt = (int)xPos;
+            int yPosInt = (int)yPos;
+            var index = (yPosInt * 88) + xPosInt;
+
+            return index;
+        }
 
         private void PixelContainer_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Point pos = e.GetPosition(PixelContainer);
-            var yPos = Math.Floor(pos.Y / 9);
-
-            for (int x = 0; x < 88; x++)
+            if (PixelContainer.IsMouseOver)
             {
-                if (Pixels[x].Bounds.IntersectsWith(new Rect(pos.X, pos.Y, 8, 8)))
+                if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
                 {
-                    if (e.ChangedButton == MouseButton.Left)
-                        PGG.SetPixelColour(x, Brushes.Blue);
-                    else if (e.ChangedButton == MouseButton.Right)
-                        PGG.SetPixelColour(x, Brushes.Aquamarine);
-
-                    PixelContainer.Children.Clear();
-                    PixelContainer.Children.Add(PGG);
-                    PixelGridChanged();
-                    break;
+                    int pixel = GetPixelUnderCursor(e.GetPosition(PixelContainer));
+                    PGG.SetPixelColour(pixel, (e.LeftButton == MouseButtonState.Pressed) ? Brushes.Blue : Brushes.Aquamarine);
+                    RefreshPixelContainer();
                 }
             }
         }
@@ -83,21 +84,13 @@ namespace Marlin_LCD_Screen_Editor.Controls
         // TODO: Use some line algorithm to account for fast mouse movements? Unnecessary?
         private void PixelContainer_MouseMove(object sender, MouseEventArgs e)
         {
-            Point pos = e.GetPosition(PixelContainer);
-            var xPos = Math.Floor(pos.X / 9);
-            var yPos = Math.Floor(pos.Y / 9);
-            int xPosInt = (int)xPos;
-            int yPosInt = (int)yPos;
-            var z = (yPosInt * 88) + xPosInt;
-            DebugLabel.Content = $"X: {xPos + 1} | Y: {yPos + 1} (Pixel #{z + 1})";
-
-            if (IsMouseOver && e.LeftButton == MouseButtonState.Pressed || IsMouseOver && e.RightButton == MouseButtonState.Pressed)
+            if (PixelContainer.IsMouseOver)
             {
-                if (Pixels[z].Rect.IntersectsWith(new Rect(pos.X, pos.Y, 8, 8)))
+                if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
                 {
-                    PGG.SetPixelColour(z, (e.LeftButton == MouseButtonState.Pressed) ? Brushes.Blue : Brushes.Aquamarine);
+                    int pixel = GetPixelUnderCursor(e.GetPosition(PixelContainer));
+                    PGG.SetPixelColour(pixel, (e.LeftButton == MouseButtonState.Pressed) ? Brushes.Blue : Brushes.Aquamarine);
                     RefreshPixelContainer();
-                    //PixelGridChanged();
                 }
             }
         }
