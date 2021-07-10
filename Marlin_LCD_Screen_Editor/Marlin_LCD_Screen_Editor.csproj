@@ -9,6 +9,15 @@
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishTrimmed>true</PublishTrimmed>
+    <Authors>Dealman</Authors>
+    <Company>Dealman Development</Company>
+    <Product>LCD Screen Editor</Product>
+    <Description>Software aimed to assist in the creation of custom screens for the 3D printing firmware Marlin.</Description>
+    <Version>1.1.0</Version>
+    <PackageProjectUrl>https://github.com/Dealman/Marlin_LCD_Screen_Editor</PackageProjectUrl>
+    <RepositoryUrl></RepositoryUrl>
+    <PackageIcon>Leicon.png</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,10 +32,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="ChildWindows\ParseCodeWindow - Copy.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>ParseCodeWindow.xaml.cs</DependentUpon>
-    </Compile>
+    <None Include="..\..\..\..\Desktop\Leicon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
