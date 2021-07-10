@@ -1,0 +1,21 @@
+﻿<simp:ChildWindow 
+        xmlns:simp="http://metro.mahapps.com/winfx/xaml/simplechildwindow"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        x:Class="Marlin_LCD_Screen_Editor.ChildWindows.ColourPickerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Marlin_LCD_Screen_Editor.ChildWindows"
+        mc:Ignorable="d"
+        Title="Colour Picker" IsOpen="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" Padding="15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" OverlayBrush="#80000000">
+    <Grid Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
+        <DockPanel>
+            <mah:ColorPicker x:Name="CP" DockPanel.Dock="Top" Margin="5"/>
+            <DockPanel LastChildFill="False" Margin="5">
+                <Button x:Name="ConfirmButton" Content="Confirm" IsDefault="True" MaxWidth="50" mah:ControlsHelper.ContentCharacterCasing="Normal" DockPanel.Dock="Left" Click="Button_Click"/>
+                <Button x:Name="CancelButton" Content="Cancel" IsCancel="True" Width="50" MaxWidth="50" Margin="5,0,0,0" mah:ControlsHelper.ContentCharacterCasing="Normal" DockPanel.Dock="Right" Click="Button_Click"/>
+            </DockPanel>
+        </DockPanel>
+    </Grid>
+</simp:ChildWindow>

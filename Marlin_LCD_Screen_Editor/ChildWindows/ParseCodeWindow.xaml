@@ -8,7 +8,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Marlin_LCD_Screen_Editor.ChildWindows"
         mc:Ignorable="d"
-        Title="Load Screen from Code" IsOpen="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="15" VerticalAlignment="Center" OverlayBrush="Transparent">
+        Title="Load Screen from Code" IsOpen="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" Padding="15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" OverlayBrush="#80000000">
     <Grid Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
         <DockPanel>
             <StackPanel Orientation="Vertical" DockPanel.Dock="Top">

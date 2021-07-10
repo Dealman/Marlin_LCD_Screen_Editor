@@ -1,7 +1,6 @@
 ﻿using MahApps.Metro.SimpleChildWindow;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,9 +15,14 @@ namespace Marlin_LCD_Screen_Editor.Controls
 
     public partial class PixelGrid : UserControl
     {
-        List<RectangleGeometry> Pixels = new List<RectangleGeometry>();
-        PixelGridGenerator PGG;
         MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+        PixelDisplay PD;
+
+        Brush activeBrush = Brushes.Aquamarine;
+        Brush inactiveBrush = Brushes.DodgerBlue;
+        public Brush ActiveBrush { get { return activeBrush; } set { activeBrush = value; BrushesChanged(true); } }
+        public Brush InactiveBrush { get { return inactiveBrush; } set { inactiveBrush = value; BrushesChanged(false); } }
+        List<Pixel> PixelArray = new List<Pixel>();
 
         public PixelGrid()
         {
@@ -34,26 +38,41 @@ namespace Marlin_LCD_Screen_Editor.Controls
         {
             int pixelTotalSize = pixelSize + pixelOffset;
 
-            for (int y = 0; y < height; y++) // 88
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < width; x++) //58
+                for (int x = 0; x < width; x++)
                 {
                     var xPos = x * pixelTotalSize;
                     var yPos = y * pixelTotalSize;
 
-                    RectangleGeometry rg = new RectangleGeometry(new Rect(xPos, yPos, pixelSize, pixelSize));
-
-                    Pixels.Add(rg);
+                    PixelArray.Add(new Pixel((PixelArray.Count), new Rect(xPos, yPos, pixelSize, pixelSize)));
                 }
             }
 
-            PGG = new PixelGridGenerator(Pixels);
+            PD = new PixelDisplay(PixelArray, ActiveBrush, InactiveBrush);
 
-            PixelContainer.Children.Add(PGG);
+            PixelContainer.Children.Add(PD);
             PixelContainer.Width = 88 * pixelTotalSize;
             PixelContainer.Height = 58 * pixelTotalSize;
 
             PixelGridChanged();
+        }
+
+        void BrushesChanged(bool activeBrush)
+        {
+            ActiveBrush.Freeze();
+            InactiveBrush.Freeze();
+            PD.UpdateBrushes(ActiveBrush, InactiveBrush);
+
+            for (int i = 0; i < PixelArray.Count; i++)
+            {
+                if (PixelArray[i].State == PixelState.On)
+                    PixelArray[i].FillColour = ActiveBrush;
+                else
+                    PixelArray[i].FillColour = InactiveBrush;
+            }
+
+            RefreshPixelContainer();
         }
 
         private int GetPixelUnderCursor(Point mousePos)
@@ -75,7 +94,13 @@ namespace Marlin_LCD_Screen_Editor.Controls
                 if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
                 {
                     int pixel = GetPixelUnderCursor(e.GetPosition(PixelContainer));
-                    PGG.SetPixelColour(pixel, (e.LeftButton == MouseButtonState.Pressed) ? Brushes.Blue : Brushes.Aquamarine);
+
+                    if (e.LeftButton == MouseButtonState.Pressed)
+                        PixelArray[pixel].SetPixelData(PixelState.On, ActiveBrush);
+
+                    if (e.RightButton == MouseButtonState.Pressed)
+                        PixelArray[pixel].SetPixelData(PixelState.Off, InactiveBrush);
+
                     RefreshPixelContainer();
                 }
             }
@@ -89,7 +114,13 @@ namespace Marlin_LCD_Screen_Editor.Controls
                 if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
                 {
                     int pixel = GetPixelUnderCursor(e.GetPosition(PixelContainer));
-                    PGG.SetPixelColour(pixel, (e.LeftButton == MouseButtonState.Pressed) ? Brushes.Blue : Brushes.Aquamarine);
+
+                    if (e.LeftButton == MouseButtonState.Pressed)
+                        PixelArray[pixel].SetPixelData(PixelState.On, ActiveBrush);
+
+                    if (e.RightButton == MouseButtonState.Pressed)
+                        PixelArray[pixel].SetPixelData(PixelState.Off, InactiveBrush);
+
                     RefreshPixelContainer();
                 }
             }
@@ -98,7 +129,7 @@ namespace Marlin_LCD_Screen_Editor.Controls
         private void RefreshPixelContainer()
         {
             PixelContainer.Children.Clear();
-            PixelContainer.Children.Add(PGG);
+            PixelContainer.Children.Add(PD);
         }
 
         // TODO: This shit slow, make async?
@@ -114,14 +145,15 @@ namespace Marlin_LCD_Screen_Editor.Controls
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
+            // TODO: Fix buttons, broken after new pixel implementation
             if (sender == GenerateButton)
             {
-                await ChildWindowManager.ShowChildWindowAsync(mainWindow, new ChildWindows.CodeWindow(PGG.ToString()));
+                await ChildWindowManager.ShowChildWindowAsync(mainWindow, new ChildWindows.CodeWindow(PD.ToString()));
             }
 
             if (sender == InvertButton)
             {
-                PGG.InvertPixelColours();
+                PD.InvertPixels();
                 RefreshPixelContainer();
                 PixelGridChanged();
             }
@@ -136,7 +168,7 @@ namespace Marlin_LCD_Screen_Editor.Controls
                     MessageBox.Show("An error occurred, the binary code appears to be invalid. Verify the code and try again!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 } else {
-                    PGG.LoadFromBinary(result);
+                    PD.LoadFromBinaryString(result);
                     RefreshPixelContainer();
                     PixelGridChanged();
                 }
@@ -144,12 +176,12 @@ namespace Marlin_LCD_Screen_Editor.Controls
 
             if (sender == PreviewButton)
             {
-                await ChildWindowManager.ShowChildWindowAsync(mainWindow, new ChildWindows.PreviewWindow(PGG.ToString()));
+                await ChildWindowManager.ShowChildWindowAsync(mainWindow, new ChildWindows.PreviewWindow(PixelArray, ActiveBrush, InactiveBrush));
             }
 
             if (sender == ResetButton)
             {
-                PGG.SetAllPixelColour(Brushes.Aquamarine);
+                PD.SetAllPixelStates(PixelState.Off);
                 RefreshPixelContainer();
                 PixelGridChanged();
             }
@@ -164,6 +196,8 @@ namespace Marlin_LCD_Screen_Editor.Controls
         {
             // TODO: Define a place with screens that contain this data
             GenerateGrid(88, 58, 8, 1);
+            ActiveBrush.Freeze();
+            InactiveBrush.Freeze();
         }
     }
 }

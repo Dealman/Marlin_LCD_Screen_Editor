@@ -1,32 +1,30 @@
 ﻿using MahApps.Metro.SimpleChildWindow;
+using System.Collections.Generic;
 using System.Windows.Media;
+using System.Windows;
 
 namespace Marlin_LCD_Screen_Editor.ChildWindows
 {
     public partial class PreviewWindow : ChildWindow
     {
-        public PreviewWindow(string code)
+        List<Pixel> PixelArray = new List<Pixel>();
+
+        public PreviewWindow(List<Pixel> pixelArray, Brush activeBrush, Brush inactiveBrush)
         {
             InitializeComponent();
 
-            DirectBitmap bmp = new DirectBitmap(88, 58);
-
-            int counter = 0;
-
-            for (int y = 0; y < 58; y++)
+            for (int i = 0; i < pixelArray.Count; i++)
             {
-                for (int x = 0; x < 88; x++)
-                {
-                    if (code[counter] == '1')
-                        bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(Colors.Aquamarine.A, Colors.Aquamarine.R, Colors.Aquamarine.G, Colors.Aquamarine.B));
-                    else
-                        bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(Colors.Blue.A, Colors.Blue.R, Colors.Blue.G, Colors.Blue.B));
-
-                    counter++;
-                }
+                Rect oldRect = pixelArray[i].Geometry;
+                Pixel newPixel = new Pixel(PixelArray.Count, new Rect((oldRect.Left/8), (oldRect.Top/8), 2, 2)); // TODO: Remove hardcoded value! Pixel size, remove offset
+                newPixel.FillColour = (pixelArray[i].State == PixelState.On ? activeBrush : inactiveBrush);
+                PixelArray.Add(newPixel);
             }
 
-            PreviewImage.Source = Utilities.ImageSourceFromBitmap(bmp.Bitmap);
+            PixelDisplay PD = new PixelDisplay(PixelArray, activeBrush, inactiveBrush);
+
+            LeGrid.Children.Add(PD);
+            LeGrid.Margin = new Thickness(-88, 0, 0, 0); // TODO: Hardcoded value, fetch from active screen
         }
     }
 }

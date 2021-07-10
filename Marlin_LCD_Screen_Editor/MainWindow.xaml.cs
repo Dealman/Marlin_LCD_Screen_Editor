@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls.Dialogs;
+using MahApps.Metro.SimpleChildWindow;
 
 namespace Marlin_LCD_Screen_Editor
 {
@@ -25,6 +26,27 @@ namespace Marlin_LCD_Screen_Editor
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private async void Rectangle_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (sender == ActiveColourRect)
+            {
+                var oldColour = ActiveColourRect.Fill;
+                var newColour = await ChildWindowManager.ShowChildWindowAsync<Color>(this, new ChildWindows.ColourPickerWindow(oldColour));
+                var newBrush = new SolidColorBrush(newColour);
+                ActiveColourRect.Fill = newBrush;
+                PixelGridControl.ActiveBrush = newBrush;
+            }
+            
+            if (sender == InactiveColourRect)
+            {
+                var oldColour = InactiveColourRect.Fill;
+                var newColour = await ChildWindowManager.ShowChildWindowAsync<Color>(this, new ChildWindows.ColourPickerWindow(oldColour));
+                var newBrush = new SolidColorBrush(newColour);
+                InactiveColourRect.Fill = newBrush;
+                PixelGridControl.InactiveBrush = newBrush;
+            }
         }
     }
 }
