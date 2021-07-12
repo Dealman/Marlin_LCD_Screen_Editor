@@ -25,5 +25,5 @@ As always, any and all feedback is welcome. Let me know if you have any suggesti
 ![Screenshot](https://i.imgur.com/N09KGce.png)
 
 # Credits
-• [MahApps](https://mahapps.com) - Using their Metro UI Framework as always 💙
+• [MahApps](https://mahapps.com) - Using their Metro UI Framework as always 💙  
 • [protobuf-net](https://github.com/protobuf-net/protobuf-net) - Makes serializing/deserializing .NET objects super ez 💚
