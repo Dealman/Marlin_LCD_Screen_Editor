@@ -9,7 +9,7 @@
         xmlns:Controls="clr-namespace:Marlin_LCD_Screen_Editor.Controls"
         x:Class="Marlin_LCD_Screen_Editor.MainWindow"
         mc:Ignorable="d"
-        Title="Marlin LCD Screen Editor" Height="450" Width="800" MinHeight="450" MinWidth="800" Background="{DynamicResource MahApps.Brushes.ThemeBackground}" TitleCharacterCasing="Normal" WindowStartupLocation="CenterScreen" SizeToContent="WidthAndHeight" ContentRendered="MetroWindow_ContentRendered">
+        Title="Marlin LCD Screen Editor" Height="450" Width="800" MinHeight="450" MinWidth="800" Background="{DynamicResource MahApps.Brushes.ThemeBackground}" TitleCharacterCasing="Normal" WindowStartupLocation="CenterScreen" SizeToContent="WidthAndHeight" ContentRendered="MetroWindow_ContentRendered" Closing="MetroWindow_Closing">
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
             <Button x:Name="SaveChangesButton" Content="Save Changes" Visibility="Collapsed" Click="Button_Click"/>

@@ -271,5 +271,12 @@ namespace Marlin_LCD_Screen_Editor
                     PixelGridControl.GenerateGrid(PixelGridControl.GetLoadedProject());
             }
         }
+
+        private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (PixelGridControl.LoadedProject is not null && PixelGridControl.LoadedProject.IsChanged)
+                if (MessageBox.Show("Warning\n\nYou have some pending changes, would you like to save those changes before exiting?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                    PixelGridControl.LoadedProject.Save();
+        }
     }
 }
