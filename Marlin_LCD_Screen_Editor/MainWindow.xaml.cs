@@ -46,6 +46,19 @@ namespace Marlin_LCD_Screen_Editor
             }
         }
 
+        public void SetStatusBarText(string message)
+        {
+            StatusBarText.Text = message;
+        }
+
+        public void SetSaveButtonVisibility(bool visible)
+        {
+            if (visible)
+                SaveChangesButton.Visibility = Visibility.Visible;
+            else
+                SaveChangesButton.Visibility = Visibility.Collapsed;
+        }
+
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             #region Create Project Button
@@ -137,7 +150,6 @@ namespace Marlin_LCD_Screen_Editor
                         if (editedProject is not null)
                         {
                             selectedProject = editedProject;
-                            selectedProject.Save();
                             ProjectDataGrid.Items.Refresh();
                             PixelGridControl.GenerateGrid(selectedProject);
                         }
@@ -181,6 +193,11 @@ namespace Marlin_LCD_Screen_Editor
                 }
             }
             #endregion
+
+            #region Save Changes Button
+            if (sender == SaveChangesButton)
+                PixelGridControl.SaveLoadedProject();
+            #endregion
         }
 
         private void MetroWindow_ContentRendered(object sender, EventArgs e)
@@ -195,6 +212,7 @@ namespace Marlin_LCD_Screen_Editor
                     {
                         project = Serializer.Deserialize<Project>(file);
                         ProjectList.Add(project);
+                        project.AcceptChanges();
                     }
                 }
 
@@ -221,11 +239,11 @@ namespace Marlin_LCD_Screen_Editor
             {
                 Project selectedProject = ProjectDataGrid.SelectedItem as Project;
 
-                if (selectedProject is not null)
-                {
+                //if (selectedProject is not null)
+                //{
                     StatusBarText.Text = $"Project: {selectedProject.Name}";
                     PixelGridControl.GenerateGrid(selectedProject);
-                }
+                //}
             }
         }
         #endregion

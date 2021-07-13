@@ -31,7 +31,7 @@ namespace Marlin_LCD_Screen_Editor.ChildWindows
 
             for (int i = 0; i < data.Length; i++)
             {
-                int pixelType = (data[i] == '1') ? 1 : 0; // Active : Inactive
+                int pixelType = (data[i] == '1') ? 0 : 1; // Active : Inactive
 
                 switch (i % 8)
                 {

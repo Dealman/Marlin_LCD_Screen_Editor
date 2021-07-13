@@ -1,6 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 using ProtoBuf;
@@ -43,20 +45,101 @@ namespace Marlin_LCD_Screen_Editor
     }
 
     [ProtoContract]
-    public class Project
+    public class Project : IChangeTracking
     {
+        string name;
+        string author;
+        string path;
+        int[] data;
+        ScreenData screenData;
+
         [ProtoMember(1)]
-        public string Name { get; set; }
+        public string Name
+        { 
+            get => name;
+            set
+            {
+                if (name != value)
+                {
+                    name = value;
+                    IsChanged = true;
+                    PropertyChanged();
+                }
+            }
+        }
         [ProtoMember(2)]
-        public string Author { get; set; } = "N/A";
+        public string Author
+        {
+            get => author;
+            set
+            {
+                if (author != value)
+                {
+                    author = value;
+                    IsChanged = true;
+                    PropertyChanged();
+                }
+            }
+        }
         [ProtoMember(3)]
         public DateTime LastEdited { get; set; }
         [ProtoMember(4)]
-        public string Path { get; set; }
+        public string Path
+        {
+            get => path;
+            set
+            {
+                if (path != value)
+                {
+                    path = value;
+                    IsChanged = true;
+                    PropertyChanged();
+                }
+            }
+        }
         [ProtoMember(5)]
-        public int[] Data { get; set; }
+        public int[] Data
+        {
+            get => data;
+            set
+            {
+                if (data != value)
+                {
+                    data = value;
+                    IsChanged = true;
+                    PropertyChanged();
+                }
+            }
+        }
         [ProtoMember(6)]
-        public ScreenData ScreenData { get; set; }
+        public ScreenData ScreenData
+        {
+            get => screenData;
+            set
+            {
+                if (!screenData.Equals(value))
+                {
+                    screenData = value;
+                    IsChanged = true;
+                    PropertyChanged();
+                }
+            }
+        }
+
+        MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+        public bool IsChanged { get; private set; }
+
+        public void PropertyChanged()
+        {
+            mainWindow.SetStatusBarText($"Project: {Name} | You have unsaved changes pending!");
+            mainWindow.SetSaveButtonVisibility(true);
+        }
+        public void AcceptChanges()
+        {
+            mainWindow.SetStatusBarText($"Project: {Name}");
+            mainWindow.SetSaveButtonVisibility(false);
+            IsChanged = false;
+        }
 
         public Project()
         {
@@ -84,14 +167,10 @@ namespace Marlin_LCD_Screen_Editor
 
             LastEdited = DateTime.Now;
 
-            // TODO: UX Improvement - prompt user to overwrite?
-            if (File.Exists(Path))
-            {
-                // TODO: UI Improvement - update status bar?
-                using (var file = File.Create(Path))
-                    Serializer.Serialize(file, this);
-            }
-            
+            using (var file = File.Create(Path))
+                Serializer.Serialize(file, this);
+
+            AcceptChanges();
         }
     }
 }
