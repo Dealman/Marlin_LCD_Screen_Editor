@@ -45,7 +45,7 @@ namespace Marlin_LCD_Screen_Editor.Controls
             ActiveBrush = new BrushConverter().ConvertFromString(project.ScreenData.ActiveBrush) as SolidColorBrush;
             InactiveBrush = new BrushConverter().ConvertFromString(project.ScreenData.InactiveBrush) as SolidColorBrush;
 
-            if (project.Data.Length > 0)
+            if (project.Data is not null && project.Data.Length > 0)
             {
                 for (int y = 0; y < project.ScreenData.Height; y++)
                 {

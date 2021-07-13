@@ -22,6 +22,7 @@ namespace Marlin_LCD_Screen_Editor
         public MainWindow()
         {
             InitializeComponent();
+            ProjectDataGrid.ItemsSource = ProjectList;
         }
 
         // TODO: Move these to project wizard?
@@ -51,8 +52,6 @@ namespace Marlin_LCD_Screen_Editor
                 var project = await ChildWindowManager.ShowChildWindowAsync<Project>(this, new ChildWindows.ProjectWizard());
                 if (project is not null)
                 {
-                    // TODO: UI Improvement - pixel size and offset should be in the Settings tab
-                    PixelGridControl.GenerateGrid(project);
                     project.Save();
 
                     if (!ProjectList.Contains(project))
@@ -66,6 +65,8 @@ namespace Marlin_LCD_Screen_Editor
                         AppSettings.Default.KnownProjects.Add(project.Path);
                         AppSettings.Default.Save();
                     }
+
+                    PixelGridControl.GenerateGrid(project);
                 }
             }
             #endregion
