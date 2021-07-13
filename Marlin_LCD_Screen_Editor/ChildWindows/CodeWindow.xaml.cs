@@ -1,5 +1,8 @@
 ﻿using MahApps.Metro.SimpleChildWindow;
+using System;
 using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Media;
 
 namespace Marlin_LCD_Screen_Editor.ChildWindows
 {
@@ -61,7 +64,6 @@ namespace Marlin_LCD_Screen_Editor.ChildWindows
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Return anything here? Probably not...?
             this.Close();
         }
     }
