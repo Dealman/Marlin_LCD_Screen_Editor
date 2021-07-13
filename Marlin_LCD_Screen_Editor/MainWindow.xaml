@@ -65,7 +65,7 @@
                                     <Label Content="Pixel Offset:"/>
                                     <mah:NumericUpDown x:Name="OffsetNUD" Value="1" Minimum="0" Maximum="32" ValueChanged="NUD_ValueChanged"/>
                                 </StackPanel>
-                                <DockPanel Margin="5,5,0,0">
+                                <DockPanel Margin="5,5,0,0" IsEnabled="False" ToolTip="Not Yet Implemented :'(" ToolTipService.ShowOnDisabled="True">
                                     <Label Content="Default Project Save Location:" DockPanel.Dock="Left"/>
                                     <Button Content="Browse" DockPanel.Dock="Right" Margin="5,0,5,0" mah:ControlsHelper.ContentCharacterCasing="Normal"/>
                                     <TextBox DockPanel.Dock="Left"/>

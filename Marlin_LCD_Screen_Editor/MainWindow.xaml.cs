@@ -25,25 +25,9 @@ namespace Marlin_LCD_Screen_Editor
         }
 
         // TODO: Move these to project wizard?
-        private async void Rectangle_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void Rectangle_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            //if (sender == ActiveColourRect)
-            //{
-            //    var oldColour = ActiveColourRect.Fill;
-            //    var newColour = await ChildWindowManager.ShowChildWindowAsync<Color>(this, new ChildWindows.ColourPickerWindow(oldColour));
-            //    var newBrush = new SolidColorBrush(newColour);
-            //    ActiveColourRect.Fill = newBrush;
-            //    PixelGridControl.ActiveBrush = newBrush;
-            //}
-            
-            //if (sender == InactiveColourRect)
-            //{
-            //    var oldColour = InactiveColourRect.Fill;
-            //    var newColour = await ChildWindowManager.ShowChildWindowAsync<Color>(this, new ChildWindows.ColourPickerWindow(oldColour));
-            //    var newBrush = new SolidColorBrush(newColour);
-            //    InactiveColourRect.Fill = newBrush;
-            //    PixelGridControl.InactiveBrush = newBrush;
-            //}
+
         }
 
         public void SetStatusBarText(string message)
@@ -212,7 +196,7 @@ namespace Marlin_LCD_Screen_Editor
                     {
                         project = Serializer.Deserialize<Project>(file);
                         ProjectList.Add(project);
-                        project.AcceptChanges();
+                        project.AcceptChanges(false);
                     }
                 }
 

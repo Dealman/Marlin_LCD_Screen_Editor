@@ -127,16 +127,37 @@ namespace Marlin_LCD_Screen_Editor
         }
 
         MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+        bool initialized = false;
         public bool IsChanged { get; private set; }
 
         public void PropertyChanged()
         {
-            mainWindow.SetStatusBarText($"Project: {Name} | You have unsaved changes pending!");
-            mainWindow.SetSaveButtonVisibility(true);
+            if (initialized)
+            {
+                mainWindow.SetStatusBarText($"Project: {Name} | You have unsaved changes pending!");
+                mainWindow.SetSaveButtonVisibility(true);
+            }
         }
+
         public void AcceptChanges()
         {
+            if (!initialized)
+                initialized = true;
+
             mainWindow.SetStatusBarText($"Project: {Name}");
+
+            mainWindow.SetSaveButtonVisibility(false);
+            IsChanged = false;
+        }
+        
+        public void AcceptChanges(bool updateStatus)
+        {
+            if (!initialized)
+                initialized = true;
+
+            if (updateStatus)
+                mainWindow.SetStatusBarText($"Project: {Name}");
+
             mainWindow.SetSaveButtonVisibility(false);
             IsChanged = false;
         }
