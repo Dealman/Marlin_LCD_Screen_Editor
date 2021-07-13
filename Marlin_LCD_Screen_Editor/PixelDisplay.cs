@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
 using System.Windows;
 using System.Windows.Media;
 
@@ -46,18 +48,29 @@ namespace Marlin_LCD_Screen_Editor
                 }
             }
         }
+        Stopwatch sw = new Stopwatch();
 
-        public override string ToString()
+        public int[] ToIntArray()
         {
-            string data = "";
+            int[] ints = new int[PixelArray.Count];
 
             for (int i = 0; i < PixelArray.Count; i++)
             {
-                if(PixelArray[i].State == PixelState.Off)
-                    data = data + "1";
-                else
-                    data = data + "0";
+                ints[i] = (PixelArray[i].State == PixelState.On ? 1 : 0);
             }
+
+            return ints;
+        }
+
+        public override string ToString()
+        {
+            int[] bitArray = ToIntArray();
+            var sb = new StringBuilder();
+
+            for (int i = 0; i < bitArray.Length; i++)
+                sb.Append(bitArray[i]);
+
+            string data = sb.ToString();
 
             return data;
         }
@@ -96,13 +109,13 @@ namespace Marlin_LCD_Screen_Editor
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            if (PixelArray is null) return;
-
-            if (PixelArray.Count > 0)
+            if (PixelArray is not null && PixelArray.Count > 0)
             {
                 for (int i = 0; i < PixelArray.Count; i++)
                 {
                     drawingContext.DrawRectangle(PixelArray[i].FillColour, PixelArray[i].OutlineColour, PixelArray[i].Geometry);
+                    if (PixelArray[i].OutlineColour is not null)
+                        PixelArray[i].OutlineColour = null;
                 }
             }
         }

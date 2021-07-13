@@ -20,6 +20,11 @@ namespace Marlin_LCD_Screen_Editor
             return true;
         }
 
+        public static void DisplayError(Exception ex)
+        {
+            MessageBox.Show($"An error has occurred!\n\nError Message:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
         [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool DeleteObject([In] IntPtr hObject);

@@ -22,13 +22,14 @@ namespace Marlin_LCD_Screen_Editor
 
         public int Index { get; set; }
         public Rect Geometry { get; set; }
-        public Brush FillColour { get; set; } = Brushes.DodgerBlue;
+        public Brush FillColour { get; set; }
         public Pen OutlineColour { get; set; }
         public PixelState State { get; set; } = PixelState.Off;
-        public Pixel(int index, Rect geometry)
+        public Pixel(int index, Rect geometry, Brush fill)
         {
             Index = index;
             Geometry = geometry;
+            FillColour = fill;
         }
 
         public void SetPixelData(PixelState newState, Brush newFill)

@@ -9,17 +9,17 @@
         xmlns:Controls="clr-namespace:Marlin_LCD_Screen_Editor.Controls"
         x:Class="Marlin_LCD_Screen_Editor.MainWindow"
         mc:Ignorable="d"
-        Title="Marlin LCD Screen Editor" Height="450" Width="800" MinHeight="450" MinWidth="800" Background="{DynamicResource MahApps.Brushes.ThemeBackground}" TitleCharacterCasing="Normal" WindowStartupLocation="CenterScreen" SizeToContent="WidthAndHeight">
+        Title="Marlin LCD Screen Editor" Height="450" Width="800" MinHeight="450" MinWidth="800" Background="{DynamicResource MahApps.Brushes.ThemeBackground}" TitleCharacterCasing="Normal" WindowStartupLocation="CenterScreen" SizeToContent="WidthAndHeight" ContentRendered="MetroWindow_ContentRendered">
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
-            <Button Content="Save Changes" Visibility="Collapsed"/>
+            <Button Content="Save Changes" Visibility="Visible"/>
         </mah:WindowCommands>
     </mah:MetroWindow.RightWindowCommands>
     <Grid>
         <DockPanel>
             <StatusBar DockPanel.Dock="Bottom" Background="{DynamicResource MahApps.Brushes.Accent}"  Height="24">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Ready, Creality 3D 12864 LCD (88x58) loaded."/>
+                    <TextBlock x:Name="StatusBarText" Text="Project: Nothing Loaded"/>
                 </StackPanel>
             </StatusBar>
             <TabControl DockPanel.Dock="Top">
@@ -27,11 +27,18 @@
                     <Grid Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
                         <DockPanel>
                             <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
-                                <Button Content="Create New" mah:ControlsHelper.ContentCharacterCasing="Normal" Margin="5,5,0,5" IsEnabled="False"/>
-                                <Button Content="Edit Selected" mah:ControlsHelper.ContentCharacterCasing="Normal" Margin="5,5,0,5" IsEnabled="False"/>
-                                <Button Content="Delete Selected" mah:ControlsHelper.ContentCharacterCasing="Normal" Margin="5,5,0,5" IsEnabled="False"/>
+                                <Button x:Name="CreateProjectButton" Content="Create New" MinWidth="85" MaxWidth="85" mah:ControlsHelper.ContentCharacterCasing="Normal" Margin="5,5,0,5" Click="Button_Click"/>
+                                <Button x:Name="LoadProjectButton" Content="Load from File" MinWidth="85" MaxWidth="85"  mah:ControlsHelper.ContentCharacterCasing="Normal" Margin="5,5,0,5" Click="Button_Click"/>
+                                <Button x:Name="EditProjectButton" Content="Edit" MinWidth="85" MaxWidth="85"  mah:ControlsHelper.ContentCharacterCasing="Normal" Margin="5,5,0,5" Click="Button_Click" IsEnabled="False"/>
+                                <Button x:Name="DeleteProjectButton" Content="Delete" MinWidth="85" MaxWidth="85"  mah:ControlsHelper.ContentCharacterCasing="Normal" Margin="5,5,0,5" Click="Button_Click" IsEnabled="False"/>
                             </StackPanel>
-                            <DataGrid x:Name="ProjectDataGrid" AlternationCount="2" SelectionMode="Single" IsEnabled="False" RowBackground="{DynamicResource MahApps.Brushes.ThemeBackground}" AlternatingRowBackground="{DynamicResource MahApps.Brushes.Gray10}">
+                            <DataGrid x:Name="ProjectDataGrid" AutoGenerateColumns="False" AlternationCount="2" SelectionMode="Single" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="2" CanUserAddRows="False" CanUserDeleteRows="False" GridLinesVisibility="All" HorizontalGridLinesBrush="{DynamicResource MahApps.Brushes.Accent}" VerticalGridLinesBrush="{DynamicResource MahApps.Brushes.Accent}" CanUserResizeRows="False" IsReadOnly="True" SelectionChanged="ProjectDataGrid_SelectionChanged" MouseDoubleClick="ProjectDataGrid_MouseDoubleClick">
+                                <DataGrid.Style>
+                                    <Style TargetType="{x:Type DataGrid}" BasedOn="{StaticResource MahApps.Styles.DataGrid}">
+                                        <Setter Property="RowBackground" Value="{DynamicResource MahApps.Brushes.ThemeBackground}"/>
+                                        <Setter Property="AlternatingRowBackground" Value="{DynamicResource MahApps.Brushes.Gray10}"/>
+                                    </Style>
+                                </DataGrid.Style>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Project Name" Binding="{Binding Name}"/>
                                     <DataGridTextColumn Header="Last Edited" Binding="{Binding LastEdited}"/>
@@ -47,22 +54,24 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="Settings">
-                    <Grid Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
-                        <StackPanel Orientation="Vertical">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="5" HorizontalAlignment="Left">
-                                <Rectangle x:Name="ActiveColourRect" Fill="Aquamarine" Stroke="{DynamicResource MahApps.Brushes.Accent}" Width="24" Height="24" MouseLeftButtonUp="Rectangle_MouseLeftButtonUp"/>
-                                <Label Content="Active Colour"/>
+                    <Border BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="2">
+                        <Grid Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="5" HorizontalAlignment="Left">
+                                    <Rectangle x:Name="ActiveColourRect" Fill="Aquamarine" Stroke="{DynamicResource MahApps.Brushes.Accent}" Width="24" Height="24" MouseLeftButtonUp="Rectangle_MouseLeftButtonUp"/>
+                                    <Label Content="Active Colour"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="5" HorizontalAlignment="Left">
+                                    <Rectangle x:Name="InactiveColourRect" Fill="Blue" Stroke="{DynamicResource MahApps.Brushes.Accent}" Width="24" Height="24" MouseLeftButtonUp="Rectangle_MouseLeftButtonUp"/>
+                                    <Label Content="Inactive Colour"/>
+                                </StackPanel>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="5" HorizontalAlignment="Left">
-                                <Rectangle x:Name="InactiveColourRect" Fill="Blue" Stroke="{DynamicResource MahApps.Brushes.Accent}" Width="24" Height="24" MouseLeftButtonUp="Rectangle_MouseLeftButtonUp"/>
-                                <Label Content="Inactive Colour"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
+                        </Grid>
+                    </Border>
                 </TabItem>
                 <TabItem Header="About">
                     <Grid>
-                        <RichTextBox BorderBrush="{DynamicResource MahApps.Brushes.Accent}" IsReadOnly="True" MaxWidth="{Binding ElementName=ProjectDataGrid, Path=ActualWidth}">
+                        <RichTextBox BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="2" IsReadOnly="True" MaxWidth="{Binding ElementName=ProjectDataGrid, Path=ActualWidth}">
                             <FlowDocument>
                                 <Paragraph>
                                     <Run>This is a WIP, some features are not yet implemented. Keep an eye on the GitHub page for updates.</Run>

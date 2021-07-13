@@ -40,10 +40,13 @@ namespace Marlin_LCD_Screen_Editor.ChildWindows
                         break;
 
                     case 7:
-                        if (counter % 11 == 0)
-                            codeBody = (codeBody + $"{pixelType},\n  ");
+                        if (counter % 11 == 0) // Width/8?
+                            if (i != data.Length-1)
+                                codeBody = (codeBody + $"{pixelType},\n  ");
+                            else
+                                codeBody = (codeBody + $"{pixelType}");
                         else
-                            codeBody = (codeBody + $"{pixelType},");
+                                codeBody = (codeBody + $"{pixelType},");
                         counter++;
                         break;
 

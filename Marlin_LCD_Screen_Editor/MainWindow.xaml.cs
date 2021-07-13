@@ -2,19 +2,29 @@
 using System.Windows.Input;
 using System.Windows.Media;
 using MahApps.Metro.SimpleChildWindow;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using System.IO;
+using ProtoBuf;
+using System.Collections.Generic;
+using System.Windows;
+using System;
+using Microsoft.Win32;
 
 namespace Marlin_LCD_Screen_Editor
 {
     public partial class MainWindow : MetroWindow
     {
-        // TODO: Add project support
+        // TODO: Add & improve project support (brushes need more work)
         // TODO: Add saving of app settings (position, size, last used screen, etc)
+        List<Project> ProjectList = new List<Project>();
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
+        // TODO: Move these to project wizard?
         private async void Rectangle_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (sender == ActiveColourRect)
@@ -35,5 +45,189 @@ namespace Marlin_LCD_Screen_Editor
                 PixelGridControl.InactiveBrush = newBrush;
             }
         }
+
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            #region Create Project Button
+            if (sender == CreateProjectButton)
+            {
+                var project = await ChildWindowManager.ShowChildWindowAsync<Project>(this, new ChildWindows.ProjectWizard());
+                if (project is not null)
+                {
+                    // TODO: UI Improvement - pixel size and offset should be in the Settings tab
+                    PixelGridControl.GenerateGrid(project);
+                    project.Save();
+
+                    if (!ProjectList.Contains(project))
+                    {
+                        ProjectList.Add(project);
+                        ProjectDataGrid.Items.Refresh();
+                    }
+
+                    if (!AppSettings.Default.KnownProjects.Contains(project.Path))
+                    {
+                        AppSettings.Default.KnownProjects.Add(project.Path);
+                        AppSettings.Default.Save();
+                    }
+                }
+            }
+            #endregion
+
+            #region Load Project File Button
+            if (sender == LoadProjectButton)
+            {
+                var ofd = new OpenFileDialog();
+                ofd.Title = "Choose a Project to Load";
+                ofd.Filter = "LCD Project (*.lcd)|*.lcd";
+
+                if (ofd.ShowDialog().GetValueOrDefault())
+                {
+                    try
+                    {
+                        var file = ofd.FileName;
+                        if (File.Exists(file))
+                        {
+                            Project loadedProject = null;
+
+                            using(var stream = File.OpenRead(file))
+                                loadedProject = Serializer.Deserialize<Project>(stream);
+
+                            foreach(Project project in ProjectList)
+                            {
+                                if (project.Path == loadedProject.Path)
+                                {
+                                    MessageBox.Show($"The project \"{loadedProject.Name}\" is already loaded.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                                    return;
+                                }
+                            }
+
+                            if (loadedProject is not null)
+                            {
+                                StatusBarText.Text = $"Project: {loadedProject.Name}";
+                                AppSettings.Default.KnownProjects.Add(loadedProject.Path);
+                                AppSettings.Default.Save();
+                                PixelGridControl.GenerateGrid(loadedProject);
+                                ProjectList.Add(loadedProject);
+                                ProjectDataGrid.Items.Refresh();
+                            }
+                        }
+                    } catch (Exception ex) {
+                        Utilities.DisplayError(ex);
+                    }
+                }
+                //if (ProjectDataGrid.SelectedIndex != -1)
+                //{
+                //    Project project = ProjectDataGrid.SelectedItem as Project;
+                //    if (project is not null)
+                //        PixelGridControl.GenerateGrid(project);
+                //}
+            }
+            #endregion
+
+            #region Edit Project Button
+            if (sender == EditProjectButton)
+            {
+                if (ProjectDataGrid.SelectedIndex >= 0)
+                {
+                    Project selectedProject = ProjectDataGrid.SelectedItem as Project;
+                    if (selectedProject is not null)
+                    {
+                        var editedProject = await ChildWindowManager.ShowChildWindowAsync<Project>(this, new ChildWindows.ProjectWizard(selectedProject));
+
+                        if (editedProject is not null)
+                        {
+                            selectedProject = editedProject;
+                            selectedProject.Save();
+                            ProjectDataGrid.Items.Refresh();
+                            PixelGridControl.GenerateGrid(selectedProject);
+                        }
+                    }
+                }
+            }
+            #endregion
+
+            #region Delete Project Button
+            if (sender == DeleteProjectButton)
+            {
+                if (ProjectDataGrid.SelectedIndex >= 0)
+                {
+                    Project selectedProject = ProjectDataGrid.SelectedItem as Project;
+
+                    if (selectedProject is not null)
+                    {
+                        ProjectList.Remove(selectedProject);
+                        AppSettings.Default.KnownProjects.Remove(selectedProject.Path);
+                        AppSettings.Default.Save();
+                        ProjectDataGrid.Items.Refresh();
+
+                        if (PixelGridControl.GetLoadedProject() == selectedProject)
+                            PixelGridControl.UnloadActiveProject();
+
+                        if (File.Exists(selectedProject.Path))
+                        {
+                            if (MessageBox.Show($"Do you want to delete the file associated with this project as well?\n\nAssociated File:\n{selectedProject.Path}", "Question", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                            {
+                                try
+                                {
+                                    File.Delete(selectedProject.Path);
+                                } catch (Exception ex) {
+                                    Utilities.DisplayError(ex);
+                                }
+                            }
+                        }
+
+                        StatusBarText.Text = "Project: Nothing Loaded";
+                    }
+                }
+            }
+            #endregion
+        }
+
+        private void MetroWindow_ContentRendered(object sender, EventArgs e)
+        {
+            if (AppSettings.Default.KnownProjects is not null && AppSettings.Default.KnownProjects.Count > 0)
+            {
+                Project project;
+
+                for (int i = 0; i < AppSettings.Default.KnownProjects.Count; i++)
+                {
+                    using (var file = File.OpenRead(AppSettings.Default.KnownProjects[i]))
+                    {
+                        project = Serializer.Deserialize<Project>(file);
+                        ProjectList.Add(project);
+                    }
+                }
+
+                if (ProjectList.Count > 0)
+                    ProjectDataGrid.ItemsSource = ProjectList;
+            }
+        }
+
+        #region DataGrid Events
+        private void ProjectDataGrid_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (ProjectDataGrid.SelectedIndex >= 0)
+            {
+                EditProjectButton.IsEnabled = true;
+                DeleteProjectButton.IsEnabled = true;
+            } else {
+                EditProjectButton.IsEnabled = false;
+                DeleteProjectButton.IsEnabled = false;
+            }
+        }
+        private void ProjectDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (ProjectDataGrid.SelectedIndex >= 0 && e.ChangedButton == MouseButton.Left)
+            {
+                Project selectedProject = ProjectDataGrid.SelectedItem as Project;
+
+                if (selectedProject is not null)
+                {
+                    StatusBarText.Text = $"Project: {selectedProject.Name}";
+                    PixelGridControl.GenerateGrid(selectedProject);
+                }
+            }
+        }
+        #endregion
     }
 }

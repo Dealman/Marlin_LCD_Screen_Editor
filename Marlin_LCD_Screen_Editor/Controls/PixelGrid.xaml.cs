@@ -1,6 +1,8 @@
 ﻿using MahApps.Metro.SimpleChildWindow;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,13 +17,16 @@ namespace Marlin_LCD_Screen_Editor.Controls
 
     public partial class PixelGrid : UserControl
     {
-        MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
-        PixelDisplay PD;
-
         Brush activeBrush = Brushes.Aquamarine;
         Brush inactiveBrush = Brushes.DodgerBlue;
-        public Brush ActiveBrush { get { return activeBrush; } set { activeBrush = value; BrushesChanged(true); } }
-        public Brush InactiveBrush { get { return inactiveBrush; } set { inactiveBrush = value; BrushesChanged(false); } }
+        public Brush ActiveBrush { get { return activeBrush; } set { activeBrush = value; BrushesChanged(); } }
+        public Brush InactiveBrush { get { return inactiveBrush; } set { inactiveBrush = value; BrushesChanged(); } }
+
+        MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+
+        Project loadedProject;
+        bool unsavedChanges;
+        PixelDisplay PD;
         List<Pixel> PixelArray = new List<Pixel>();
 
         public PixelGrid()
@@ -29,60 +34,106 @@ namespace Marlin_LCD_Screen_Editor.Controls
             InitializeComponent();
         }
 
-        private void PixelContainer_Loaded(object sender, RoutedEventArgs e)
+        public void GenerateGrid(Project project)
         {
-            
-        }
+            if (PixelArray.Count > 0)
+                PixelArray.Clear();
 
-        public void GenerateGrid(int width, int height, int pixelSize, int pixelOffset)
-        {
-            int pixelTotalSize = pixelSize + pixelOffset;
+            loadedProject = project;
+            int pixelTotalSize = (AppSettings.Default.PixelSize + AppSettings.Default.PixelOffset);
+            ActiveBrush = new BrushConverter().ConvertFromString(project.ScreenData.ActiveBrush) as SolidColorBrush;
+            InactiveBrush = new BrushConverter().ConvertFromString(project.ScreenData.InactiveBrush) as SolidColorBrush;
 
-            for (int y = 0; y < height; y++)
+            if (project.Data is not null)
             {
-                for (int x = 0; x < width; x++)
+                for (int y = 0; y < project.ScreenData.Height; y++)
                 {
-                    var xPos = x * pixelTotalSize;
-                    var yPos = y * pixelTotalSize;
+                    for (int x = 0; x < project.ScreenData.Width; x++)
+                    {
+                        var xPos = x * pixelTotalSize;
+                        var yPos = y * pixelTotalSize;
 
-                    PixelArray.Add(new Pixel((PixelArray.Count), new Rect(xPos, yPos, pixelSize, pixelSize)));
+                        if (project.Data[PixelArray.Count] == 1)
+                        {
+                            Pixel px = new Pixel(PixelArray.Count, new Rect(xPos, yPos, AppSettings.Default.PixelSize, AppSettings.Default.PixelSize), ActiveBrush);
+                            px.State = PixelState.On;
+                            PixelArray.Add(px);
+                        } else {
+                            Pixel px = new Pixel(PixelArray.Count, new Rect(xPos, yPos, AppSettings.Default.PixelSize, AppSettings.Default.PixelSize), InactiveBrush);
+                            px.State = PixelState.Off;
+                            PixelArray.Add(px);
+                        }
+                    }
+                }
+            } else {
+                for (int y = 0; y < project.ScreenData.Height; y++)
+                {
+                    for (int x = 0; x < project.ScreenData.Width; x++)
+                    {
+                        var xPos = x * pixelTotalSize;
+                        var yPos = y * pixelTotalSize;
+
+                        PixelArray.Add(new Pixel(PixelArray.Count, new Rect(xPos, yPos, AppSettings.Default.PixelSize, AppSettings.Default.PixelSize), InactiveBrush));
+                    }
                 }
             }
 
             PD = new PixelDisplay(PixelArray, ActiveBrush, InactiveBrush);
 
             PixelContainer.Children.Add(PD);
-            PixelContainer.Width = 88 * pixelTotalSize;
-            PixelContainer.Height = 58 * pixelTotalSize;
 
-            PixelGridChanged();
+            PixelContainer.Width = project.ScreenData.Width * pixelTotalSize;
+            PixelContainer.Height = project.ScreenData.Height * pixelTotalSize;
         }
 
-        void BrushesChanged(bool activeBrush)
+        public Project GetLoadedProject()
         {
-            ActiveBrush.Freeze();
-            InactiveBrush.Freeze();
-            PD.UpdateBrushes(ActiveBrush, InactiveBrush);
+            if (loadedProject is not null)
+                return loadedProject;
 
-            for (int i = 0; i < PixelArray.Count; i++)
+            return null;
+        }
+
+        public void UnloadActiveProject()
+        {
+            if (PixelArray.Count > 0)
+                PixelArray.Clear();
+
+            ActiveBrush = Brushes.Aquamarine;
+            InactiveBrush = Brushes.DodgerBlue;
+            PixelContainer.Children.Clear();
+            PD = null;
+        }
+
+        void BrushesChanged()
+        {
+            if (PD is not null)
             {
-                if (PixelArray[i].State == PixelState.On)
-                    PixelArray[i].FillColour = ActiveBrush;
-                else
-                    PixelArray[i].FillColour = InactiveBrush;
-            }
+                ActiveBrush.Freeze();
+                InactiveBrush.Freeze();
 
-            RefreshPixelContainer();
+                PD.UpdateBrushes(ActiveBrush, InactiveBrush);
+
+                for (int i = 0; i < PixelArray.Count; i++)
+                {
+                    if (PixelArray[i].State == PixelState.On)
+                        PixelArray[i].FillColour = ActiveBrush;
+                    else
+                        PixelArray[i].FillColour = InactiveBrush;
+                }
+
+                RefreshPixelContainer();
+            }
         }
 
         private int GetPixelUnderCursor(Point mousePos)
         {
             // TODO: These values shouldn't be hardcoded, fix ASAP!
-            var xPos = Math.Floor(mousePos.X / 9);
-            var yPos = Math.Floor(mousePos.Y / 9);
+            var xPos = Math.Floor(mousePos.X / (AppSettings.Default.PixelSize + AppSettings.Default.PixelOffset));
+            var yPos = Math.Floor(mousePos.Y / (AppSettings.Default.PixelSize + AppSettings.Default.PixelOffset));
             int xPosInt = (int)xPos;
             int yPosInt = (int)yPos;
-            var index = (yPosInt * 88) + xPosInt;
+            var index = (yPosInt * loadedProject.ScreenData.Width) + xPosInt;
 
             return index;
         }
@@ -101,6 +152,8 @@ namespace Marlin_LCD_Screen_Editor.Controls
                     if (e.RightButton == MouseButtonState.Pressed)
                         PixelArray[pixel].SetPixelData(PixelState.Off, InactiveBrush);
 
+                    PixelArray[pixel].OutlineColour = new Pen(Brushes.Red, 1.5);
+
                     RefreshPixelContainer();
                 }
             }
@@ -111,18 +164,17 @@ namespace Marlin_LCD_Screen_Editor.Controls
         {
             if (PixelContainer.IsMouseOver)
             {
-                if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
-                {
-                    int pixel = GetPixelUnderCursor(e.GetPosition(PixelContainer));
+                int pixel = GetPixelUnderCursor(e.GetPosition(PixelContainer));
 
-                    if (e.LeftButton == MouseButtonState.Pressed)
-                        PixelArray[pixel].SetPixelData(PixelState.On, ActiveBrush);
+                if (e.LeftButton == MouseButtonState.Pressed)
+                    PixelArray[pixel].SetPixelData(PixelState.On, ActiveBrush);
 
-                    if (e.RightButton == MouseButtonState.Pressed)
-                        PixelArray[pixel].SetPixelData(PixelState.Off, InactiveBrush);
+                if (e.RightButton == MouseButtonState.Pressed)
+                    PixelArray[pixel].SetPixelData(PixelState.Off, InactiveBrush);
 
-                    RefreshPixelContainer();
-                }
+                PixelArray[pixel].OutlineColour = new Pen(Brushes.Red, 1.5);
+
+                RefreshPixelContainer();
             }
         }
 
@@ -130,6 +182,8 @@ namespace Marlin_LCD_Screen_Editor.Controls
         {
             PixelContainer.Children.Clear();
             PixelContainer.Children.Add(PD);
+
+            unsavedChanges = true;
         }
 
         // TODO: This shit slow, make async?
@@ -185,6 +239,15 @@ namespace Marlin_LCD_Screen_Editor.Controls
                 RefreshPixelContainer();
                 PixelGridChanged();
             }
+
+            if (sender == SaveButton)
+            {
+                if (loadedProject is not null)
+                {
+                    loadedProject.Data = PD.ToIntArray();
+                    loadedProject.Save();
+                }
+            }
         }
 
         private void ScreenDropDown_Selected(object sender, RoutedEventArgs e)
@@ -195,9 +258,9 @@ namespace Marlin_LCD_Screen_Editor.Controls
         private void PixelContainer_Initialized(object sender, EventArgs e)
         {
             // TODO: Define a place with screens that contain this data
-            GenerateGrid(88, 58, 8, 1);
-            ActiveBrush.Freeze();
-            InactiveBrush.Freeze();
+            //GenerateGrid(88, 58, 8, 1);
+            //ActiveBrush.Freeze();
+            //InactiveBrush.Freeze();
         }
     }
 }

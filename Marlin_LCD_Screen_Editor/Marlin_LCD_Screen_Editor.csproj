@@ -28,6 +28,7 @@
   <ItemGroup>
     <PackageReference Include="MahApps.Metro" Version="2.4.7" />
     <PackageReference Include="MahApps.Metro.SimpleChildWindow" Version="2.0.0" />
+    <PackageReference Include="protobuf-net" Version="3.0.101" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
   </ItemGroup>
 
@@ -35,6 +36,21 @@
     <None Include="..\..\..\..\Desktop\Leicon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="AppSettings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AppSettings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="AppSettings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>AppSettings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
 

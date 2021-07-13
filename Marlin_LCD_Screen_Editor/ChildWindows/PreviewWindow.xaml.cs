@@ -16,7 +16,7 @@ namespace Marlin_LCD_Screen_Editor.ChildWindows
             for (int i = 0; i < pixelArray.Count; i++)
             {
                 Rect oldRect = pixelArray[i].Geometry;
-                Pixel newPixel = new Pixel(PixelArray.Count, new Rect((oldRect.Left/8), (oldRect.Top/8), 2, 2)); // TODO: Remove hardcoded value! Pixel size, remove offset
+                Pixel newPixel = new Pixel(PixelArray.Count, new Rect((oldRect.Left/8), (oldRect.Top/8), 2, 2), inactiveBrush); // TODO: Remove hardcoded value! Pixel size, remove offset
                 newPixel.FillColour = (pixelArray[i].State == PixelState.On ? activeBrush : inactiveBrush);
                 PixelArray.Add(newPixel);
             }
