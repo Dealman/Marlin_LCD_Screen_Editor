@@ -57,6 +57,21 @@
                     <Border BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="2">
                         <Grid Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
                             <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal" Margin="5,5,0,0">
+                                    <Label Content="Pixel Size:"/>
+                                    <mah:NumericUpDown x:Name="SizeNUD" Value="8" Minimum="1" Maximum="32" Margin="11,0,0,0" ValueChanged="NUD_ValueChanged"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="5,5,0,0">
+                                    <Label Content="Pixel Offset:"/>
+                                    <mah:NumericUpDown x:Name="OffsetNUD" Value="1" Minimum="0" Maximum="32" ValueChanged="NUD_ValueChanged"/>
+                                </StackPanel>
+                                <DockPanel Margin="5,5,0,0">
+                                    <Label Content="Default Project Save Location:" DockPanel.Dock="Left"/>
+                                    <Button Content="Browse" DockPanel.Dock="Right" Margin="5,0,5,0" mah:ControlsHelper.ContentCharacterCasing="Normal"/>
+                                    <TextBox DockPanel.Dock="Left"/>
+                                </DockPanel>
+                            </StackPanel>
+                            <!--<StackPanel Orientation="Vertical">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="5" HorizontalAlignment="Left">
                                     <Rectangle x:Name="ActiveColourRect" Fill="Aquamarine" Stroke="{DynamicResource MahApps.Brushes.Accent}" Width="24" Height="24" MouseLeftButtonUp="Rectangle_MouseLeftButtonUp"/>
                                     <Label Content="Active Colour"/>
@@ -65,7 +80,7 @@
                                     <Rectangle x:Name="InactiveColourRect" Fill="Blue" Stroke="{DynamicResource MahApps.Brushes.Accent}" Width="24" Height="24" MouseLeftButtonUp="Rectangle_MouseLeftButtonUp"/>
                                     <Label Content="Inactive Colour"/>
                                 </StackPanel>
-                            </StackPanel>
+                            </StackPanel>-->
                         </Grid>
                     </Border>
                 </TabItem>

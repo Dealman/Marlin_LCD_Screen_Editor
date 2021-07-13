@@ -27,23 +27,23 @@ namespace Marlin_LCD_Screen_Editor
         // TODO: Move these to project wizard?
         private async void Rectangle_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (sender == ActiveColourRect)
-            {
-                var oldColour = ActiveColourRect.Fill;
-                var newColour = await ChildWindowManager.ShowChildWindowAsync<Color>(this, new ChildWindows.ColourPickerWindow(oldColour));
-                var newBrush = new SolidColorBrush(newColour);
-                ActiveColourRect.Fill = newBrush;
-                PixelGridControl.ActiveBrush = newBrush;
-            }
+            //if (sender == ActiveColourRect)
+            //{
+            //    var oldColour = ActiveColourRect.Fill;
+            //    var newColour = await ChildWindowManager.ShowChildWindowAsync<Color>(this, new ChildWindows.ColourPickerWindow(oldColour));
+            //    var newBrush = new SolidColorBrush(newColour);
+            //    ActiveColourRect.Fill = newBrush;
+            //    PixelGridControl.ActiveBrush = newBrush;
+            //}
             
-            if (sender == InactiveColourRect)
-            {
-                var oldColour = InactiveColourRect.Fill;
-                var newColour = await ChildWindowManager.ShowChildWindowAsync<Color>(this, new ChildWindows.ColourPickerWindow(oldColour));
-                var newBrush = new SolidColorBrush(newColour);
-                InactiveColourRect.Fill = newBrush;
-                PixelGridControl.InactiveBrush = newBrush;
-            }
+            //if (sender == InactiveColourRect)
+            //{
+            //    var oldColour = InactiveColourRect.Fill;
+            //    var newColour = await ChildWindowManager.ShowChildWindowAsync<Color>(this, new ChildWindows.ColourPickerWindow(oldColour));
+            //    var newBrush = new SolidColorBrush(newColour);
+            //    InactiveColourRect.Fill = newBrush;
+            //    PixelGridControl.InactiveBrush = newBrush;
+            //}
         }
 
         public void SetStatusBarText(string message)
@@ -219,6 +219,12 @@ namespace Marlin_LCD_Screen_Editor
                 if (ProjectList.Count > 0)
                     ProjectDataGrid.ItemsSource = ProjectList;
             }
+
+            if (AppSettings.Default.PixelSize != 8)
+                SizeNUD.Value = AppSettings.Default.PixelSize;
+
+            if (AppSettings.Default.PixelOffset != 1)
+                OffsetNUD.Value = AppSettings.Default.PixelOffset;
         }
 
         #region DataGrid Events
@@ -239,13 +245,31 @@ namespace Marlin_LCD_Screen_Editor
             {
                 Project selectedProject = ProjectDataGrid.SelectedItem as Project;
 
-                //if (selectedProject is not null)
-                //{
-                    StatusBarText.Text = $"Project: {selectedProject.Name}";
-                    PixelGridControl.GenerateGrid(selectedProject);
-                //}
+                StatusBarText.Text = $"Project: {selectedProject.Name}";
+                PixelGridControl.GenerateGrid(selectedProject);
             }
         }
         #endregion
+
+        private void NUD_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
+        {
+            if (sender == SizeNUD && SizeNUD.IsInitialized)
+            {
+                AppSettings.Default.PixelSize = (int)SizeNUD.Value.GetValueOrDefault();
+                AppSettings.Default.Save();
+
+                if (PixelGridControl.GetLoadedProject() is not null)
+                    PixelGridControl.GenerateGrid(PixelGridControl.GetLoadedProject());
+            }
+            
+            if (sender == OffsetNUD && OffsetNUD.IsInitialized)
+            {
+                AppSettings.Default.PixelOffset = (int)OffsetNUD.Value.GetValueOrDefault();
+                AppSettings.Default.Save();
+
+                if (PixelGridControl.GetLoadedProject() is not null)
+                    PixelGridControl.GenerateGrid(PixelGridControl.GetLoadedProject());
+            }
+        }
     }
 }
